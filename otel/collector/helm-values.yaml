@@ -1,0 +1,25 @@
+nameOverride: collector
+
+image:
+  repository: "otel/opentelemetry-collector-contrib"
+
+mode: deployment
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+        http:
+          endpoint: ${env:MY_POD_IP}:3030
+
+  exporters:
+    debug: {}
+
+ports:
+  otlp-http:
+    enabled: true
+    containerPort: 3030
+    servicePort: 3030
+    hostPort: 3030
+    protocol: TCP
