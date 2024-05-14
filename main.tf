@@ -29,3 +29,22 @@ resource "helm_release" "opentelemetry_collector" {
     file("${path.module}/otel/collector/helm-values.yaml")
   ]
 }
+
+
+# https://github.com/grafana/loki/tree/main/production/helm/loki
+resource "helm_release" "loki" {
+  name = "loki"
+
+  #   chart = "https://github.com/grafana/helm-charts/releases/download/helm-loki-6.5.2/loki-6.5.2.tgz"
+
+  repository = "https://grafana.github.io/helm-charts"
+  chart      = "loki"
+  version    = "6.5.2"
+
+  reset_values  = true
+  recreate_pods = true
+
+  values = [
+    file("${path.module}/otel/loki/test-values.yaml")
+  ]
+}

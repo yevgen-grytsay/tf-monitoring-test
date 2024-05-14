@@ -4,6 +4,12 @@
 kubectl run curl --image=radial/busyboxplus:curl -i --tty --rm
 ```
 
+## Cluster Settings
+Enable storage for Loki:
+```sh
+microk8s enable hostpath-storage
+```
+
 ## Resources
 ### Fluent-bit
 - [Filters | Kubernetes](https://docs.fluentbit.io/manual/pipeline/filters/kubernetes)
