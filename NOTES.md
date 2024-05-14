@@ -9,6 +9,7 @@
 ```
 
 ## Loki
+
 ```
 $ helm status loki
 NAME: loki
@@ -98,12 +99,43 @@ If Grafana operates within the cluster, you'll set up a new Loki datasource by u
 http://loki-gateway.default.svc.cluster.local/
 ```
 
+
+```sh
+logcli query '{exporter="OTLP"}'
+```
+
 ```sh
 curl -H "Content-Type: application/json" -XPOST -s "http://loki:3100/loki/api/v1/push"  \
     --data "{\"streams\": [{\"stream\": {\"job\": \"test\"}, \"values\": [[\"$(date +%s)000000000\", \"fizzbuzz\"]]}]}"
 
+curl -H "Content-Type: application/json" -XPOST -s "http://loki:3100/loki/api/v1/push" --data "{\"streams\": [{\"stream\": {\"job\": \"test\"}, \"values\": [[\"$(date +%s)000000000\", \"fizzbuzz\"]]}]}"
+
 curl "http://loki:3100/loki/api/v1/query_range" --data-urlencode 'query={job="test"}' | jq .data.result
 ```
+
+```sh
+kubectl port-forward --namespace default svc/loki-gateway 3100:80 &
+curl "http://127.0.0.1:3100/loki/api/v1/query_range" --data-urlencode 'query={job="test"}' | jq .data.result
+
+wget https://github.com/grafana/loki/releases/download/v2.9.8/logcli_2.9.8_amd64.deb
+
+export LOKI_ADDR=http://127.0.0.1:3100
+
+
+logcli labels job
+2024/05/14 12:42:24 http://127.0.0.1:3100/loki/api/v1/label/job/values?end=1715679744584505951&start=1715676144584505951
+test
+test2
+
+
+
+logcli labels pod \
+    --timezone=UTC \
+    --from="2024-05-13T10:00:00Z" \
+    --to="2024-05-15T20:00:00Z"
+
+```
+
 
 ## Chunks cache fail
 ```
@@ -187,4 +219,49 @@ helm_release.loki: Importing from ID "loki"...
 ╵
 
 $ terraform import helm_release.loki default/loki
+```
+
+
+
+2024-05-14T13:10:59+03:00 {level="debug"} {"body":"level=info ts=2024-05-14T10:10:59.332299273Z caller=metrics.go:216 component=frontend org_id=fake traceID=5c319a05278c287e latency=fast query=\"{exporter=\\\"OTLP\\\"}\" query_hash=470100140 query_type=limited range_type=range length=1h0m0s start_delta=1h0m0.120213473s end_delta=120.213684ms step=14s duration=59.813513ms status=200 limit=30 returned_lines=0 throughput=52MB total_bytes=3.1MB total_bytes_structured_metadata=685kB lines_per_second=392586 total_lines=23482 post_filter_lines=23482 total_entries=30 store_chunks_download_time=0s queue_time=179µs splits=1 shards=0 query_referenced_structured_metadata=false pipeline_wrapper_filtered_lines=0 chunk_refs_fetch_time=167.52µs cache_chunk_req=0 cache_chunk_hit=0 cache_chunk_bytes_stored=0 cache_chunk_bytes_fetched=0 cache_chunk_download_time=0s cache_index_req=0 cache_index_hit=0 cache_index_download_time=0s cache_stats_results_req=0 cache_stats_results_hit=0 cache_stats_results_download_time=0s cache_volume_results_req=0 cache_volume_results_hit=0 cache_volume_results_download_time=0s cache_result_req=0 cache_result_hit=0 cache_result_download_time=0s cache_result_query_length_served=0s ingester_chunk_refs=0 ingester_chunk_downloaded=0 ingester_chunk_matches=1 ingester_requests=1 ingester_chunk_head_bytes=84kB ingester_chunk_compressed_bytes=431kB ingester_chunk_decompressed_bytes=3.0MB ingester_post_filter_lines=23482 congestion_control_latency=0s index_total_chunks=0 index_post_bloom_filter_chunks=0 index_bloom_filter_ratio=0.00 disable_pipeline_wrappers=false"}
+
+
+
+2024-05-14T13:22:28+03:00 {level="error"} {"body":"level=error ts=2024-05-14T10:22:28.414286285Z caller=flush.go:152 component=ingester org_id=fake msg=\"failed to flush\" err=\"failed to flush chunks: store put chunk: mkdir fake: read-only file system, num_chunks: 2, labels: {exporter=\\\"OTLP\\\", service_name=\\\"unknown_service\\\"}\""}
+
+
+
+## Grafana
+```
+$ helm status grafana
+NAME: grafana
+LAST DEPLOYED: Tue May 14 15:25:39 2024
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get your 'admin' user password by running:
+
+   kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+
+2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+
+   grafana.default.svc.cluster.local
+
+   Get the Grafana URL to visit by running these commands in the same shell:
+     export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+     kubectl --namespace default port-forward $POD_NAME 3000
+
+3. Login with the password from step 1 and the username: admin
+#################################################################################
+######   WARNING: Persistence is disabled!!! You will lose your data when   #####
+######            the Grafana pod is terminated.                            #####
+#################################################################################
+```
+
+```sh
+export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+
+kubectl --namespace default --address 192.168.1.119 port-forward $POD_NAME 3000
 ```

@@ -18,7 +18,7 @@ config:
   ## https://opentelemetry.io/docs/collector/configuration/#exporters
   exporters:
     debug:
-      verbosity: normal # detailed, normal, ...
+      verbosity: detailed # detailed, normal, ...
     loki:
       endpoint: http://loki:3100/loki/api/v1/push
 

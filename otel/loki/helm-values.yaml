@@ -1,4 +1,5 @@
-mode: SingleBinary
+# https://raw.githubusercontent.com/grafana/loki/main/production/helm/loki/single-binary-values.yaml
+---
 loki:
   auth_enabled: false
   server:
@@ -8,26 +9,79 @@ loki:
     http_server_write_timeout: 600s
   commonConfig:
     replication_factor: 1
-  storage:
-    type: "filesystem"
-    filesystem:
-      chunks_directory: /var/loki/chunks
-      rules_directory: /var/loki/rules
-      admin_api_directory: /var/loki/admin
   schemaConfig:
     configs:
-      - from: 2024-01-01
+      - from: 2024-04-01
         store: tsdb
+        object_store: filesystem
+        schema: v13
         index:
           prefix: loki_index_
           period: 24h
-        object_store: filesystem # we're storing on filesystem so there's no real persistence here.
-        schema: v13
+  ingester:
+    chunk_encoding: snappy
+  tracing:
+    enabled: true
+  querier:
+    # Default is 4, if you have enough memory and CPU you can increase, reduce if OOMing
+    max_concurrent: 2
+
+#gateway:
+#  ingress:
+#    enabled: true
+#    hosts:
+#      - host: FIXME
+#        paths:
+#          - path: /
+#            pathType: Prefix
+
+deploymentMode: SingleBinary
 singleBinary:
   replicas: 1
-read:
-  replicas: 0
+  resources:
+    limits:
+      cpu: 3
+      memory: 4Gi
+    requests:
+      cpu: 2
+      memory: 2Gi
+  extraEnv:
+    # Keep a little bit lower than memory limits
+    - name: GOMEMLIMIT
+      value: 3750MiB
+
+chunksCache:
+  enabled: false
+  # default is 500MB, with limited memory keep this smaller
+  # writebackSizeLimit: 10MB
+
+# Enable minio for storage
+minio:
+  enabled: true
+
+# Zero out replica counts of other deployment modes
 backend:
   replicas: 0
+read:
+  replicas: 0
 write:
+  replicas: 0
+
+ingester:
+  replicas: 0
+querier:
+  replicas: 0
+queryFrontend:
+  replicas: 0
+queryScheduler:
+  replicas: 0
+distributor:
+  replicas: 0
+compactor:
+  replicas: 0
+indexGateway:
+  replicas: 0
+bloomCompactor:
+  replicas: 0
+bloomGateway:
   replicas: 0

@@ -13,10 +13,9 @@ resource "helm_release" "fluent" {
   recreate_pods = true
 
   values = [
-    file("${path.module}/fluent-bit/test-values.yaml")
+    file("${path.module}/fluent-bit/helm-values.yaml")
   ]
 }
-
 
 resource "helm_release" "opentelemetry_collector" {
   name  = "collector"
@@ -29,7 +28,6 @@ resource "helm_release" "opentelemetry_collector" {
     file("${path.module}/otel/collector/helm-values.yaml")
   ]
 }
-
 
 # https://github.com/grafana/loki/tree/main/production/helm/loki
 resource "helm_release" "loki" {
@@ -45,6 +43,24 @@ resource "helm_release" "loki" {
   recreate_pods = true
 
   values = [
-    file("${path.module}/otel/loki/test-values.yaml")
+    file("${path.module}/otel/loki/helm-values.yaml")
+  ]
+}
+
+resource "helm_release" "grafana" {
+  name = "grafana"
+
+  repository = "https://grafana.github.io/helm-charts"
+  chart      = "grafana"
+  version    = "7.3.11"
+
+  #   create_namespace = true
+  #   namespace        = "grafana"
+
+  reset_values  = true
+  recreate_pods = true
+
+  values = [
+    file("${path.module}/otel/grafana/helm-values.yaml")
   ]
 }
