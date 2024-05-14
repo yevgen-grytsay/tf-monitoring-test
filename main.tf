@@ -13,7 +13,7 @@ resource "helm_release" "fluent" {
   recreate_pods = true
 
   values = [
-    file("${path.module}/fluent-bit/helm-values.yaml")
+    file("${path.module}/fluent-bit/test-values.yaml")
   ]
 }
 
