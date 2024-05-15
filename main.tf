@@ -58,3 +58,18 @@ resource "helm_release" "grafana" {
     file("${path.module}/otel/grafana/helm-values.yaml")
   ]
 }
+
+resource "helm_release" "prometheus" {
+  name = "prometheus"
+
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart      = "prometheus"
+  version    = "25.21.0"
+
+  reset_values  = true
+  recreate_pods = true
+
+  values = [
+    file("${path.module}/otel/prometheus/helm-values.yaml")
+  ]
+}
