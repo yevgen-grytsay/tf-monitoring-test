@@ -1,4 +1,38 @@
 
+```mermaid
+flowchart LR
+
+Fluent-bit -->|push| c-p3030
+App -->|push metrics & traces|c-p8889
+
+Prometheus -.->|pull metrics| c-p8889
+
+collector -->|push logs| Loki-3100
+
+Grafana -..->|query logs| Loki-3100
+
+subgraph Loki
+    Loki-3100(:3100)
+end
+
+subgraph collector[Otel Collector]
+    c-p3030(:3030)
+    c-p8889(:8889)
+end
+
+subgraph Legend
+    direction LR
+    start1[ ] --->|push| stop1[ ]
+    style start1 height:0px;
+    style stop1 height:0px;
+    start2[ ] -..->|pull| stop2[ ]
+    style start2 height:0px;
+    style stop2 height:0px; 
+end
+
+style Legend fill:none
+```
+
 ## Debug
 ```sh
 kubectl run curl --image=radial/busyboxplus:curl -i --tty --rm
@@ -48,6 +82,7 @@ kubectl --namespace default port-forward $POD_NAME 9090
 ### OpenTelemetry Collector
 - [Helm values.yaml](https://github.com/open-telemetry/opentelemetry-helm-charts/blob/main/charts/opentelemetry-collector/values.yaml)
 - [Recommended Processors](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor#recommended-processors)
+  - [Batch Processor](https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/batchprocessor/README.md)
 
 ### Grafana Loki
 - [Loki overview](https://grafana.com/docs/loki/latest/get-started/overview/)

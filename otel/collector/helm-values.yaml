@@ -32,6 +32,7 @@ config:
         exporters: [debug, loki]
       traces:
         receivers: [otlp]
+        processors: [batch]
         exporters: [debug]
       metrics:
         receivers: [otlp]
