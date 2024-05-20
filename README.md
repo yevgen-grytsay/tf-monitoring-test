@@ -75,14 +75,15 @@ kubectl --namespace default port-forward $POD_NAME 9090
 ## Resources
 ### Fluent-bit
 - [Filters | Kubernetes](https://docs.fluentbit.io/manual/pipeline/filters/kubernetes)
-- [Helm values.yaml](https://raw.githubusercontent.com/fluent/helm-charts/main/charts/fluent-bit/values.yaml)
+- [Helm values.yaml](https://github.com/fluent/helm-charts/blob/main/charts/fluent-bit/values.yaml)
 - [Inputs | Tail](https://docs.fluentbit.io/manual/pipeline/inputs/tail)
 - [Outputs | OpenTelemetry](https://docs.fluentbit.io/manual/pipeline/outputs/opentelemetry)
 
 ### OpenTelemetry Collector
-- [Helm values.yaml](https://github.com/open-telemetry/opentelemetry-helm-charts/blob/main/charts/opentelemetry-collector/values.yaml)
+- [Loki Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/exporter/lokiexporter/README.md)
 - [Recommended Processors](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor#recommended-processors)
   - [Batch Processor](https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/batchprocessor/README.md)
+- [Helm values.yaml](https://github.com/open-telemetry/opentelemetry-helm-charts/blob/main/charts/opentelemetry-collector/values.yaml)
 
 ### Grafana Loki
 - [Loki overview](https://grafana.com/docs/loki/latest/get-started/overview/)
