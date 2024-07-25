@@ -20,10 +20,19 @@ config:
     [INPUT]
         Name tail
         Tag kube.*
-        Path /var/log/containers/argo-cd-*.log
+        Path /var/log/containers/*.log
+        Exclude_Path /var/log/containers/collector-*.log, /var/log/containers/fluent-*.log, /var/log/containers/loki-*.log, /var/log/containers/grafana-*.log, /var/log/containers/prometheus-*.log
         Parser cri
         Mem_Buf_Limit 5MB
         Skip_Long_Lines On
+
+    # [INPUT]
+    #     Name tail
+    #     Tag kube.*
+    #     Path /var/log/containers/argo-cd-*.log
+    #     Parser cri
+    #     Mem_Buf_Limit 5MB
+    #     Skip_Long_Lines On
 
     # [INPUT]
     #     Name systemd
@@ -40,6 +49,12 @@ config:
         Key_Name message
         # Reserve_Data True
     
+    [FILTER]
+        Name parser
+        Match kube.var.log.containers.speaker-*
+        Parser json
+        Key_Name message
+    
     # [FILTER]
     #     Name modify
     #     Match kube.argocd
@@ -50,7 +65,6 @@ config:
         Match kube.var.log.containers.argo-cd-*
         call append_severityText
         code function append_severityText(tag, timestamp, record) new_record = record new_record["severityText"] = string.upper(new_record["level"]) return 1, timestamp, new_record end
-
 
     [FILTER]
         Name kubernetes
