@@ -6,8 +6,10 @@ provider "helm" {
 }
 
 resource "helm_release" "fluent" {
-  name  = "fluent"
-  chart = "https://github.com/fluent/helm-charts/releases/download/fluent-bit-0.46.5/fluent-bit-0.46.5.tgz"
+  name       = "fluent"
+  repository = "https://fluent.github.io/helm-charts"
+  chart      = "fluent-bit"
+  version    = "0.47.4"
 
   reset_values  = true
   recreate_pods = true
@@ -18,8 +20,11 @@ resource "helm_release" "fluent" {
 }
 
 resource "helm_release" "opentelemetry_collector" {
-  name  = "collector"
-  chart = "https://github.com/open-telemetry/opentelemetry-helm-charts/releases/download/opentelemetry-collector-0.90.1/opentelemetry-collector-0.90.1.tgz"
+  name = "collector"
+  #   chart = "https://github.com/open-telemetry/opentelemetry-helm-charts/releases/download/opentelemetry-collector-0.90.1/opentelemetry-collector-0.90.1.tgz"
+  repository = "https://open-telemetry.github.io/opentelemetry-helm-charts"
+  chart      = "opentelemetry-collector"
+  version    = "0.99.0"
 
   reset_values  = true
   recreate_pods = true

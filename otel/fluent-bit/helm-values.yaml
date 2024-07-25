@@ -19,34 +19,59 @@ config:
   inputs: |
     [INPUT]
         Name tail
-        Path /var/log/containers/*.log
-        # Parser cri
-        multiline.parser docker, cri
-        Tag kube.*
+        Tag kube.argocd
+        Path /var/log/containers/argo-cd-*.log
+        # Exclude_Path /var/log/containers/loki-canary-*
+        Parser cri
+        # multiline.parser docker, cri
         Mem_Buf_Limit 5MB
         Skip_Long_Lines On
 
-    [INPUT]
-        Name systemd
-        Tag host.*
-        Systemd_Filter _SYSTEMD_UNIT=kubelet.service
-        Read_From_Tail On
+    # [INPUT]
+    #     Name systemd
+    #     Tag host.*
+    #     Systemd_Filter _SYSTEMD_UNIT=kubelet.service
+    #     Read_From_Tail On
 
   ## https://docs.fluentbit.io/manual/pipeline/filters
   filters: |
     [FILTER]
-        Name kubernetes
-        Match kube.*
-        Merge_Log On
-        # Merge_Log_Key original_log
-        Keep_Log Off
-        K8S-Logging.Parser On
-        K8S-Logging.Exclude On
-        # Namespace_Labels On
+        Name parser
+        Match kube.argocd
+        Parser logfmt
+        Key_Name message
+        Reserve_Data True
+    
+    # [FILTER]
+    #     Name modify
+    #     Match kube.argocd
+    #     Set severityText DEBUG
+
+    [FILTER]
+        Name Lua
+        Match kube.argocd
+        call append_severityText
+        code function append_severityText(tag, timestamp, record) new_record = record new_record["severityText"] = string.upper(new_record["level"]) return 1, timestamp, new_record end
+
+
+    # [FILTER]
+    #     Name kubernetes
+    #     Match kube.*
+    #     Merge_Log On
+    #     # Merge_Log_Key original_log
+    #     Keep_Log Off
+    #     K8S-Logging.Parser On
+    #     K8S-Logging.Exclude On
+    #     # Namespace_Labels On
 
   ## https://docs.fluentbit.io/manual/pipeline/outputs
   ## https://docs.fluentbit.io/manual/pipeline/outputs/opentelemetry
   outputs: |
+    [OUTPUT]
+        Name stdout
+        Match kube.argocd
+        Format json
+
     [OUTPUT]
         Name opentelemetry
         Match kube.*
@@ -61,19 +86,21 @@ config:
         Retry_Limit False
         add_label app fluent-bit
         add_label color blue
+        # logs_severity_text_message_key $level
+        logs_severity_text_message_key severityText
 
-    [OUTPUT]
-        Name opentelemetry
-        Match host.*
-        Host collector
-        Port 3030
-        metrics_uri /v1/metrics
-        logs_uri /v1/logs
-        traces_uri /v1/traces
-        Log_response_payload True
-        tls off
-        tls.verify off
-        Retry_Limit False
+    # [OUTPUT]
+    #     Name opentelemetry
+    #     Match host.*
+    #     Host collector
+    #     Port 3030
+    #     metrics_uri /v1/metrics
+    #     logs_uri /v1/logs
+    #     traces_uri /v1/traces
+    #     Log_response_payload True
+    #     tls off
+    #     tls.verify off
+    #     Retry_Limit False
 
   ## https://docs.fluentbit.io/manual/pipeline/parsers
   # customParsers: |
