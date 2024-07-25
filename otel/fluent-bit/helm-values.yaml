@@ -19,11 +19,9 @@ config:
   inputs: |
     [INPUT]
         Name tail
-        Tag kube.argocd
+        Tag kube.*
         Path /var/log/containers/argo-cd-*.log
-        # Exclude_Path /var/log/containers/loki-canary-*
         Parser cri
-        # multiline.parser docker, cri
         Mem_Buf_Limit 5MB
         Skip_Long_Lines On
 
@@ -37,10 +35,10 @@ config:
   filters: |
     [FILTER]
         Name parser
-        Match kube.argocd
+        Match kube.var.log.containers.argo-cd-*
         Parser logfmt
         Key_Name message
-        Reserve_Data True
+        # Reserve_Data True
     
     # [FILTER]
     #     Name modify
@@ -49,27 +47,22 @@ config:
 
     [FILTER]
         Name Lua
-        Match kube.argocd
+        Match kube.var.log.containers.argo-cd-*
         call append_severityText
         code function append_severityText(tag, timestamp, record) new_record = record new_record["severityText"] = string.upper(new_record["level"]) return 1, timestamp, new_record end
 
 
-    # [FILTER]
-    #     Name kubernetes
-    #     Match kube.*
-    #     Merge_Log On
-    #     # Merge_Log_Key original_log
-    #     Keep_Log Off
-    #     K8S-Logging.Parser On
-    #     K8S-Logging.Exclude On
-    #     # Namespace_Labels On
+    [FILTER]
+        Name kubernetes
+        Match kube.*
+        Kube_Tag_Prefix kube.var.log.containers.
 
   ## https://docs.fluentbit.io/manual/pipeline/outputs
   ## https://docs.fluentbit.io/manual/pipeline/outputs/opentelemetry
   outputs: |
     [OUTPUT]
         Name stdout
-        Match kube.argocd
+        Match kube.*
         Format json
 
     [OUTPUT]
