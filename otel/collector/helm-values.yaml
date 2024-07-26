@@ -23,14 +23,15 @@ config:
     prometheus:
       endpoint: 0.0.0.0:8889
   
-  processors:
-    transform:
-      log_statements:
-        - context: log
-          conditions:
-            - IsMap(body) and body["level"] != nil
-          statements:
-            - set(attributes["level"], body["level"])
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/transformprocessor/README.md
+  # processors:
+  #   transform:
+  #     log_statements:
+  #       - context: log
+  #         conditions:
+  #           - IsMap(body) and body["level"] != nil
+  #         statements:
+  #           - set(attributes["level"], body["level"])
 
   ## https://opentelemetry.io/docs/collector/configuration/#service
   service:
@@ -40,7 +41,8 @@ config:
     pipelines:
       logs:
         receivers: [otlp]
-        processors: [batch, transform]
+        processors: [batch]
+        # processors: [batch, transform]
         exporters: [debug, loki]
       traces:
         receivers: [otlp]
