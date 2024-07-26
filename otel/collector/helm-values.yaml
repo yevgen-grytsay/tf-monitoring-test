@@ -9,6 +9,9 @@ mode: deployment
 config:
   ## https://opentelemetry.io/docs/collector/configuration/#receivers
   receivers:
+    filelog:
+      start_at: beginning
+      include: [ test.log ]
     otlp:
       protocols:
         http:
@@ -27,15 +30,20 @@ config:
     transform:
       log_statements:
         - context: log
+          conditions:
+            - IsMap(body) and body["level"] != nil
           statements:
             - set(attributes["level"], body["level"])
 
   ## https://opentelemetry.io/docs/collector/configuration/#service
   service:
+    telemetry:
+      logs:
+        level: debug
     pipelines:
       logs:
-        receivers: [otlp]
-        processors: [batch]
+        receivers: [otlp, filelog]
+        processors: [batch, transform]
         exporters: [debug, loki]
       traces:
         receivers: [otlp]
