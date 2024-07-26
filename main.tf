@@ -11,8 +11,8 @@ resource "helm_release" "fluent" {
   chart      = "fluent-bit"
   version    = "0.47.4"
 
-  reset_values  = true
-  recreate_pods = true  # DEPRECATED in Helm 3 https://helm.sh/docs/intro/using_helm/#helpful-options-for-installupgraderollback
+  reset_values = true
+  #   recreate_pods = true # DEPRECATED in Helm 3 https://helm.sh/docs/intro/using_helm/#helpful-options-for-installupgraderollback
 
   values = [
     file("${path.module}/otel/fluent-bit/helm-values.yaml")
@@ -26,8 +26,8 @@ resource "helm_release" "opentelemetry_collector" {
   chart      = "opentelemetry-collector"
   version    = "0.99.0"
 
-  reset_values  = true
-  recreate_pods = true  # DEPRECATED in Helm 3 https://helm.sh/docs/intro/using_helm/#helpful-options-for-installupgraderollback
+  reset_values = true
+  #   recreate_pods = true # DEPRECATED in Helm 3 https://helm.sh/docs/intro/using_helm/#helpful-options-for-installupgraderollback
 
   values = [
     file("${path.module}/otel/collector/helm-values.yaml")
@@ -39,10 +39,10 @@ resource "helm_release" "loki" {
 
   repository = "https://grafana.github.io/helm-charts"
   chart      = "loki"
-  version    = "6.5.2"
+  version    = "6.7.3"
 
-  reset_values  = true
-  recreate_pods = true  # DEPRECATED in Helm 3 https://helm.sh/docs/intro/using_helm/#helpful-options-for-installupgraderollback
+  reset_values = true
+  #   recreate_pods = true # DEPRECATED in Helm 3 https://helm.sh/docs/intro/using_helm/#helpful-options-for-installupgraderollback
 
   values = [
     file("${path.module}/otel/loki/helm-values.yaml")
@@ -54,10 +54,10 @@ resource "helm_release" "grafana" {
 
   repository = "https://grafana.github.io/helm-charts"
   chart      = "grafana"
-  version    = "7.3.11"
+  version    = "8.3.6"
 
-  reset_values  = true
-  recreate_pods = true  # DEPRECATED in Helm 3 https://helm.sh/docs/intro/using_helm/#helpful-options-for-installupgraderollback
+  reset_values = true
+  #   recreate_pods = true # DEPRECATED in Helm 3 https://helm.sh/docs/intro/using_helm/#helpful-options-for-installupgraderollback
 
   values = [
     file("${path.module}/otel/grafana/helm-values.yaml")
@@ -71,8 +71,8 @@ resource "helm_release" "prometheus" {
   chart      = "prometheus"
   version    = "25.21.0"
 
-  reset_values  = true
-  recreate_pods = true  # DEPRECATED in Helm 3 https://helm.sh/docs/intro/using_helm/#helpful-options-for-installupgraderollback
+  reset_values = true
+  #   recreate_pods = true # DEPRECATED in Helm 3 https://helm.sh/docs/intro/using_helm/#helpful-options-for-installupgraderollback
 
   values = [
     file("${path.module}/otel/prometheus/helm-values.yaml")
