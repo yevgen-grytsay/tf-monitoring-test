@@ -22,13 +22,27 @@ config:
       endpoint: http://loki:3100/loki/api/v1/push
     prometheus:
       endpoint: 0.0.0.0:8889
+  
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/transformprocessor/README.md
+  # processors:
+  #   transform:
+  #     log_statements:
+  #       - context: log
+  #         conditions:
+  #           - IsMap(body) and body["level"] != nil
+  #         statements:
+  #           - set(attributes["level"], body["level"])
 
   ## https://opentelemetry.io/docs/collector/configuration/#service
   service:
+    # telemetry:
+    #   logs:
+    #     level: debug
     pipelines:
       logs:
         receivers: [otlp]
         processors: [batch]
+        # processors: [batch, transform]
         exporters: [debug, loki]
       traces:
         receivers: [otlp]

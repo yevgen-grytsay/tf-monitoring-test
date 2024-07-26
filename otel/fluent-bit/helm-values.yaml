@@ -19,10 +19,10 @@ config:
   inputs: |
     [INPUT]
         Name tail
-        Path /var/log/containers/*.log
-        # Parser cri
-        multiline.parser docker, cri
         Tag kube.*
+        Path /var/log/containers/*.log
+        Exclude_Path /var/log/containers/collector-*.log, /var/log/containers/fluent-*.log, /var/log/containers/loki-*.log, /var/log/containers/grafana-*.log, /var/log/containers/prometheus-*.log
+        Parser cri
         Mem_Buf_Limit 5MB
         Skip_Long_Lines On
 
@@ -35,18 +35,37 @@ config:
   ## https://docs.fluentbit.io/manual/pipeline/filters
   filters: |
     [FILTER]
+        Name parser
+        Match kube.var.log.containers.argo-cd-*
+        Parser logfmt
+        Key_Name message
+        # Reserve_Data True
+    
+    [FILTER]
+        Name parser
+        Match kube.var.log.containers.speaker-*
+        Parser json
+        Key_Name message
+
+    [FILTER]
+        Name Lua
+        Match kube.var.log.containers.argo-cd-*
+        call append_severityText
+        code function append_severityText(tag, timestamp, record) new_record = record new_record["severityText"] = string.upper(new_record["level"]) return 1, timestamp, new_record end
+
+    [FILTER]
         Name kubernetes
         Match kube.*
-        Merge_Log On
-        # Merge_Log_Key original_log
-        Keep_Log Off
-        K8S-Logging.Parser On
-        K8S-Logging.Exclude On
-        # Namespace_Labels On
+        Kube_Tag_Prefix kube.var.log.containers.
 
   ## https://docs.fluentbit.io/manual/pipeline/outputs
   ## https://docs.fluentbit.io/manual/pipeline/outputs/opentelemetry
   outputs: |
+    [OUTPUT]
+        Name stdout
+        Match kube.*
+        Format json
+
     [OUTPUT]
         Name opentelemetry
         Match kube.*
@@ -61,6 +80,8 @@ config:
         Retry_Limit False
         add_label app fluent-bit
         add_label color blue
+        # logs_severity_text_message_key $level
+        logs_severity_text_message_key severityText
 
     [OUTPUT]
         Name opentelemetry
