@@ -97,6 +97,7 @@ kubectl --namespace default port-forward $POD_NAME 9090
 ### Grafana Loki
 
 - [Loki overview](https://grafana.com/docs/loki/latest/get-started/overview/)
+- [loki distributor | levelLabel = "detected_level"](https://github.com/grafana/loki/blob/v3.1.0/pkg/distributor/distributor.go#L66)
 - [Helm values.yaml](https://github.com/grafana/loki/blob/main/production/helm/loki/single-binary-values.yaml)
 
 ### Grafana

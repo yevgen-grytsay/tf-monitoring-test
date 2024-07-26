@@ -185,3 +185,5 @@ Query Example:
   "span_id": "16665a8cb4936e16"
 }
 ```
+
+[loki distributor | levelLabel = "detected_level"](https://github.com/grafana/loki/blob/v3.1.0/pkg/distributor/distributor.go#L66)
