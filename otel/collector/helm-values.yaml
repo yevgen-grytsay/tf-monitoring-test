@@ -9,9 +9,6 @@ mode: deployment
 config:
   ## https://opentelemetry.io/docs/collector/configuration/#receivers
   receivers:
-    filelog:
-      start_at: beginning
-      include: [ test.log ]
     otlp:
       protocols:
         http:
@@ -37,12 +34,12 @@ config:
 
   ## https://opentelemetry.io/docs/collector/configuration/#service
   service:
-    telemetry:
-      logs:
-        level: debug
+    # telemetry:
+    #   logs:
+    #     level: debug
     pipelines:
       logs:
-        receivers: [otlp, filelog]
+        receivers: [otlp]
         processors: [batch, transform]
         exporters: [debug, loki]
       traces:
